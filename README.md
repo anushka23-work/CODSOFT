@@ -24,4 +24,4 @@ A contact management application with a GUI interface that allows users to add, 
 * Data Persistence (JSON)
 
 ## Author
-Anushka Sahu
+**Anushka Sahu**
