@@ -47,6 +47,7 @@ for button in buttons:
     tk.Button(
         root,
         text=button,
+
         width=5,
         height=2,
         font=("Arial", 14),
@@ -68,4 +69,4 @@ tk.Button(
     command=clear
 ).grid(row=row, column=0, columnspan=4, pady=10)
 
-root.mainloop()
+

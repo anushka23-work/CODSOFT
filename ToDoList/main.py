@@ -1,42 +1,67 @@
-from task_manager import *
+import tkinter as tk
+from tkinter import messagebox
+from task_manager import load_tasks, save_tasks
 
-while True:
-    print("\n===== TO-DO LIST =====")
-    print("1. Add Task")
-    print("2. View Tasks")
-    print("3. Mark Task Completed")
-    print("4. Delete Task")
-    print("5. Exit")
+tasks = load_tasks()
 
-    choice = input("Enter choice: ")
 
-    if choice == "1":
-        task = input("Enter task: ")
-        add_task(task)
-        print("Task Added!")
+def refresh_list():
+    listbox.delete(0, tk.END)
+    for task in tasks:
+        listbox.insert(tk.END, task)
 
-    elif choice == "2":
-        tasks = view_tasks()
 
-        if not tasks:
-            print("No tasks found.")
-        else:
-            for i, task in enumerate(tasks):
-                print(f"{i+1}. {task['task']} [{task['status']}]")
+def add_task():
+    task = task_entry.get()
 
-    elif choice == "3":
-        task_num = int(input("Enter task number: "))
-        mark_completed(task_num - 1)
-        print("Task Completed!")
-
-    elif choice == "4":
-        task_num = int(input("Enter task number: "))
-        delete_task(task_num - 1)
-        print("Task Deleted!")
-
-    elif choice == "5":
-        print("Goodbye!")
-        break
-
+    if task:
+        tasks.append(task)
+        save_tasks(tasks)
+        refresh_list()
+        task_entry.delete(0, tk.END)
     else:
-        print("Invalid Choice")
+        messagebox.showwarning("Warning", "Enter a task")
+
+
+def delete_task():
+    try:
+        selected = listbox.curselection()[0]
+        tasks.pop(selected)
+        save_tasks(tasks)
+        refresh_list()
+    except:
+        messagebox.showwarning("Warning", "Select a task")
+
+
+root = tk.Tk()
+root.title("To-Do List")
+root.geometry("400x450")
+
+heading = tk.Label(
+    root,
+    text="To-Do List",
+    font=("Arial", 18, "bold")
+)
+heading.pack(pady=10)
+
+task_entry = tk.Entry(root, width=35)
+task_entry.pack(pady=10)
+
+tk.Button(
+    root,
+    text="Add Task",
+    command=add_task
+).pack(pady=5)
+
+listbox = tk.Listbox(root, width=40, height=12)
+listbox.pack(pady=10)
+
+tk.Button(
+    root,
+    text="Delete Task",
+    command=delete_task
+).pack(pady=5)
+
+refresh_list()
+
+root.mainloop()

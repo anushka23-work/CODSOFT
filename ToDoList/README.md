@@ -1,53 +1,50 @@
-<<<<<<< HEAD
-# Python To-Do List
+# To-Do List Application
 
-A simple command-line To-Do List application built using Python. This project allows users to add, view, complete, and delete tasks while storing data in a JSON file.
+A simple GUI-based To-Do List application built using Python and Tkinter. This application helps users manage their daily tasks efficiently.
 
 ## Features
 
 * Add new tasks
-* View all tasks
-* Mark tasks as completed
-* Delete tasks
-* Store tasks permanently using JSON
-
-## Technologies Used
-
-* Python
-* JSON
+* Delete completed tasks
+* User-friendly graphical interface
+* Stores tasks in a JSON file
+* Automatically loads saved tasks on startup
 
 ## Project Structure
 
 ```text
-Python-ToDoList/
+ToDoList/
+│
 ├── main.py
 ├── task_manager.py
 ├── tasks.json
 ├── README.md
-├── .gitignore
-└── screenshots/
+└── requirements.txt
 ```
+
+## Technologies Used
+
+* Python
+* Tkinter
+* JSON
 
 ## How to Run
 
-1. Clone the repository
-2. Open the project folder
-3. Run:
+1. Clone the repository.
+2. Navigate to the project folder.
+3. Run the following command:
 
 ```bash
 python main.py
 ```
 
-## Sample Menu
+## Future Enhancements
 
-```text
-===== TO-DO LIST =====
-1. Add Task
-2. View Tasks
-3. Mark Task Completed
-4. Delete Task
-5. Exit
-```
+* Edit existing tasks
+* Mark tasks as completed
+* Dark mode
+* Task categories
+* Due dates and reminders
 
 ## Author
 

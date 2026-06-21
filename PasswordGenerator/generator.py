@@ -10,4 +10,3 @@ def generate_password(length):
         for _ in range(length)
     )
 
-    return password
