@@ -1,7 +1,13 @@
 [
     {
-        "name":"Anushka",
-        "phone":"9876543210",
-        "email":"anushka@gmail.com"
+        "name": "Anushka",
+        "phone": "9876543210",
+        "email": "anushka@gmail.com"
+    },
+    {
+        "name": "sneha",
+        "phone": "7894561237",
+        "email": "anu@gmail.com",
+        "address": "128/503 "
     }
 ]

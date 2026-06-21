@@ -280,7 +280,8 @@ class ContactBookGUI:
                     contact["name"],
                     contact["phone"],
                     contact["email"],
-                    contact["address"]
+                    
+                    contact.get("address", "N/A")
                 )
             )
 
