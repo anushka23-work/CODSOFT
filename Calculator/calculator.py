@@ -67,6 +67,7 @@ tk.Button(
     height=2,
     font=("Arial", 12),
     command=clear
-).grid(row=row, column=0, columnspan=4, pady=10)
+).grid(row=row+1, column=0, columnspan=4, pady=10)
+root.mainloop()
 
 
