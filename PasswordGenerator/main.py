@@ -1,11 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-
-from generator import generate_password
-
-
-def create_password():
-
 import random
 import string
 
