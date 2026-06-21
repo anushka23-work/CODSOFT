@@ -14,7 +14,7 @@ def generate_password():
             return
 
 
-        password = generate_password(length)
+        
 
         characters = string.ascii_letters + string.digits + string.punctuation
 
@@ -50,7 +50,7 @@ length_entry.pack(pady=5)
 tk.Button(
     root,
     text="Generate Password",
-    command=create_password
+    command=generate_password
 ).pack(pady=10)
 
 password_entry = tk.Entry(root, width=35)
