@@ -1,426 +1,101 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
-from tkinter import filedialog
-
-import csv
-
+from tkinter import ttk, messagebox
 from contact_manager import ContactManager
 from storage import load_contacts, save_contacts
 from utils import validate_phone, validate_email
 
-
 class ContactBookGUI:
-
     def __init__(self, root):
-
         self.root = root
-
-        self.root.title("Contact Book")
+        self.root.title("Contact Book Pro")
         self.root.geometry("1000x600")
-
-        self.dark_mode = False
+        self.root.configure(bg="#f0f2f5")
 
         self.manager = ContactManager()
-
         self.manager.contacts = load_contacts()
-
         self.create_widgets()
-
         self.refresh_contacts()
 
     def create_widgets(self):
+        # Header
+        title = tk.Label(self.root, text="📱 My Contact Book", font=("Segoe UI", 24, "bold"), 
+                         bg="#4a90e2", fg="white", pady=15)
+        title.pack(fill="x")
 
-        title = tk.Label(
-            self.root,
-            text="📱 Contact Book",
-            font=("Segoe UI", 20, "bold")
-        )
+        main_frame = tk.Frame(self.root, bg="#f0f2f5")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-        title.pack(pady=10)
+        # Input Frame
+        left_frame = tk.LabelFrame(main_frame, text="Details", font=("Arial", 12, "bold"), 
+                                   bg="#ffffff", padx=15, pady=15, relief="flat")
+        left_frame.pack(side="left", fill="y", padx=(0, 20))
 
-        top_frame = tk.Frame(self.root)
-        top_frame.pack(fill="x", padx=10)
+        # Fields
+        for label_text, var in [("Name:", "name"), ("Phone:", "phone"), ("Email:", "email"), ("Address:", "address")]:
+            tk.Label(left_frame, text=label_text, bg="white", font=("Arial", 10)).pack(anchor="w")
+            entry = ttk.Entry(left_frame, width=30)
+            entry.pack(pady=(0, 10))
+            setattr(self, f"{var}_entry", entry)
 
-        self.count_label = tk.Label(
-            top_frame,
-            text="Total Contacts: 0",
-            font=("Segoe UI", 10, "bold")
-        )
+        # Buttons
+        tk.Button(left_frame, text="Add Contact", command=self.add_contact, bg="#28a745", fg="white", font=("Arial", 9, "bold"), width=20, relief="flat").pack(pady=5)
+        tk.Button(left_frame, text="Update", command=self.update_contact, bg="#ffc107", font=("Arial", 9, "bold"), width=20, relief="flat").pack(pady=5)
+        tk.Button(left_frame, text="Delete", command=self.delete_contact, bg="#dc3545", fg="white", font=("Arial", 9, "bold"), width=20, relief="flat").pack(pady=5)
 
-        self.count_label.pack(side="left")
+        # Treeview
+        right_frame = tk.Frame(main_frame, bg="#f0f2f5")
+        right_frame.pack(side="right", fill="both", expand=True)
 
-        theme_btn = tk.Button(
-            top_frame,
-            text="🌙 Toggle Theme",
-            command=self.toggle_theme
-        )
-
-        theme_btn.pack(side="right")
-
-        main_frame = tk.Frame(self.root)
-        main_frame.pack(fill="both", expand=True)
-
-        left_frame = tk.Frame(main_frame)
-        left_frame.pack(side="left", padx=10, pady=10)
-
-        tk.Label(left_frame, text="Name").pack()
-
-        self.name_entry = ttk.Entry(left_frame, width=30)
-        self.name_entry.pack()
-
-        tk.Label(left_frame, text="Phone").pack()
-
-        self.phone_entry = ttk.Entry(left_frame, width=30)
-        self.phone_entry.pack()
-
-        tk.Label(left_frame, text="Email").pack()
-
-        self.email_entry = ttk.Entry(left_frame, width=30)
-        self.email_entry.pack()
-
-        tk.Label(left_frame, text="Address").pack()
-
-        self.address_entry = ttk.Entry(left_frame, width=30)
-        self.address_entry.pack()
-
-        tk.Button(
-            left_frame,
-            text="Add Contact",
-            command=self.add_contact
-        ).pack(fill="x", pady=5)
-
-        tk.Button(
-            left_frame,
-            text="Update Contact",
-            command=self.update_contact
-        ).pack(fill="x", pady=5)
-
-        tk.Button(
-            left_frame,
-            text="Delete Contact",
-            command=self.delete_contact
-        ).pack(fill="x", pady=5)
-
-        tk.Button(
-            left_frame,
-            text="Export CSV",
-            command=self.export_csv
-        ).pack(fill="x", pady=5)
-
-        tk.Button(
-            left_frame,
-            text="Import CSV",
-            command=self.import_csv
-        ).pack(fill="x", pady=5)
-
-        tk.Label(left_frame, text="Search").pack(pady=5)
-
-        self.search_var = tk.StringVar()
-
-        self.search_var.trace(
-            "w",
-            self.search_contacts
-        )
-
-        ttk.Entry(
-            left_frame,
-            textvariable=self.search_var
-        ).pack()
-
-        right_frame = tk.Frame(main_frame)
-
-        right_frame.pack(
-            side="right",
-            fill="both",
-            expand=True
-        )
-
-        columns = (
-            "Name",
-            "Phone",
-            "Email",
-            "Address"
-        )
-
-        self.tree = ttk.Treeview(
-            right_frame,
-            columns=columns,
-            show="headings"
-        )
-
-        for col in columns:
-
+        self.tree = ttk.Treeview(right_frame, columns=("Name", "Phone", "Email", "Address"), show="headings")
+        for col in ("Name", "Phone", "Email", "Address"):
             self.tree.heading(col, text=col)
+            self.tree.column(col, width=150)
+        self.tree.pack(fill="both", expand=True)
+        self.tree.bind("<<TreeviewSelect>>", self.select_contact)
+        
+        self.count_label = tk.Label(right_frame, text="Total Contacts: 0", font=("Arial", 10, "bold"), bg="#f0f2f5")
+        self.count_label.pack(pady=5)
 
-            self.tree.column(
-                col,
-                width=180
-            )
-
-        self.tree.pack(
-            fill="both",
-            expand=True
-        )
-
-        self.tree.bind(
-            "<<TreeviewSelect>>",
-            self.select_contact
-        )
+    def refresh_contacts(self):
+        self.tree.delete(*self.tree.get_children())
+        for contact in self.manager.contacts:
+            self.tree.insert("", "end", values=(contact["name"], contact["phone"], contact["email"], contact.get("address", "N/A")))
+        self.count_label.config(text=f"Total Contacts: {len(self.manager.contacts)}")
 
     def add_contact(self):
-
-        name = self.name_entry.get()
-
-        phone = self.phone_entry.get()
-
-        email = self.email_entry.get()
-
-        address = self.address_entry.get()
-
-        if not name:
-
-            messagebox.showerror(
-                "Error",
-                "Name required"
-            )
-
+        name, phone, email, address = self.name_entry.get(), self.phone_entry.get(), self.email_entry.get(), self.address_entry.get()
+        if not name or not validate_phone(phone) or (email and not validate_email(email)):
+            messagebox.showerror("Error", "Invalid Input! Check Name, Phone, and Email.")
             return
-
-        if not validate_phone(phone):
-
-            messagebox.showerror(
-                "Error",
-                "Invalid Phone Number"
-            )
-
-            return
-
-        if email and not validate_email(email):
-
-            messagebox.showerror(
-                "Error",
-                "Invalid Email"
-            )
-
-            return
-
-        contact = {
-
-            "name": name,
-            "phone": phone,
-            "email": email,
-            "address": address
-        }
-
-        self.manager.add_contact(contact)
-
-        save_contacts(
-            self.manager.contacts
-        )
-
+        self.manager.add_contact({"name": name, "phone": phone, "email": email, "address": address})
+        save_contacts(self.manager.contacts)
         self.refresh_contacts()
-
         self.clear_fields()
 
     def update_contact(self):
-
         selected = self.tree.focus()
-
-        if not selected:
-            return
-
-        index = self.tree.index(selected)
-
-        self.manager.update_contact(
-            index,
-            {
-                "name": self.name_entry.get(),
-                "phone": self.phone_entry.get(),
-                "email": self.email_entry.get(),
-                "address": self.address_entry.get()
-            }
-        )
-
-        save_contacts(
-            self.manager.contacts
-        )
-
-        self.refresh_contacts()
-
-    def delete_contact(self):
-
-        selected = self.tree.focus()
-
-        if not selected:
-            return
-
-        index = self.tree.index(selected)
-
-        self.manager.delete_contact(index)
-
-        save_contacts(
-            self.manager.contacts
-        )
-
-        self.refresh_contacts()
-
-    def refresh_contacts(self):
-
-        self.tree.delete(
-            *self.tree.get_children()
-        )
-
-        for contact in self.manager.contacts:
-
-            self.tree.insert(
-                "",
-                "end",
-                values=(
-                    contact["name"],
-                    contact["phone"],
-                    contact["email"],
-                    
-                    contact.get("address", "N/A")
-                )
-            )
-
-        self.count_label.config(
-            text=f"Total Contacts: {len(self.manager.contacts)}"
-        )
-
-    def select_contact(self, event):
-
-        selected = self.tree.focus()
-
-        if not selected:
-            return
-
-        values = self.tree.item(
-            selected,
-            "values"
-        )
-
-        self.clear_fields()
-
-        self.name_entry.insert(0, values[0])
-        self.phone_entry.insert(0, values[1])
-        self.email_entry.insert(0, values[2])
-        self.address_entry.insert(0, values[3])
-
-    def search_contacts(self, *args):
-
-        query = self.search_var.get()
-
-        result = self.manager.search_contact(query)
-
-        self.tree.delete(
-            *self.tree.get_children()
-        )
-
-        for contact in result:
-
-            self.tree.insert(
-                "",
-                "end",
-                values=(
-                    contact["name"],
-                    contact["phone"],
-                    contact["email"],
-                    contact["address"]
-                )
-            )
-
-    def export_csv(self):
-
-        file = filedialog.asksaveasfilename(
-            defaultextension=".csv"
-        )
-
-        if file:
-
-            with open(
-                file,
-                "w",
-                newline=""
-            ) as csvfile:
-
-                writer = csv.writer(csvfile)
-
-                writer.writerow(
-                    [
-                        "Name",
-                        "Phone",
-                        "Email",
-                        "Address"
-                    ]
-                )
-
-                for contact in self.manager.contacts:
-
-                    writer.writerow(
-                        [
-                            contact["name"],
-                            contact["phone"],
-                            contact["email"],
-                            contact["address"]
-                        ]
-                    )
-
-    def import_csv(self):
-
-        file = filedialog.askopenfilename(
-            filetypes=[
-                ("CSV Files", "*.csv")
-            ]
-        )
-
-        if file:
-
-            with open(file, "r") as csvfile:
-
-                reader = csv.DictReader(
-                    csvfile
-                )
-
-                for row in reader:
-
-                    self.manager.add_contact(
-                        {
-                            "name": row["Name"],
-                            "phone": row["Phone"],
-                            "email": row["Email"],
-                            "address": row["Address"]
-                        }
-                    )
-
-            save_contacts(
-                self.manager.contacts
-            )
-
+        if selected:
+            index = self.tree.index(selected)
+            self.manager.update_contact(index, {"name": self.name_entry.get(), "phone": self.phone_entry.get(), "email": self.email_entry.get(), "address": self.address_entry.get()})
+            save_contacts(self.manager.contacts)
             self.refresh_contacts()
 
-    def toggle_theme(self):
+    def delete_contact(self):
+        selected = self.tree.focus()
+        if selected:
+            self.manager.delete_contact(self.tree.index(selected))
+            save_contacts(self.manager.contacts)
+            self.refresh_contacts()
+            self.clear_fields()
 
-        if self.dark_mode:
-
-            self.root.configure(
-                bg="white"
-            )
-
-            self.dark_mode = False
-
-        else:
-
-            self.root.configure(
-                bg="#2b2b2b"
-            )
-
-            self.dark_mode = True
+    def select_contact(self, event):
+        selected = self.tree.focus()
+        if selected:
+            vals = self.tree.item(selected, "values")
+            self.clear_fields()
+            self.name_entry.insert(0, vals[0]); self.phone_entry.insert(0, vals[1])
+            self.email_entry.insert(0, vals[2]); self.address_entry.insert(0, vals[3])
 
     def clear_fields(self):
-
-        self.name_entry.delete(0, tk.END)
-        self.phone_entry.delete(0, tk.END)
-        self.email_entry.delete(0, tk.END)
-        self.address_entry.delete(0, tk.END)
+        for entry in [self.name_entry, self.phone_entry, self.email_entry, self.address_entry]:
+            entry.delete(0, tk.END)
