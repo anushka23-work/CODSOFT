@@ -63,11 +63,6 @@ password_entry = tk.Entry(root, width=35)
 password_entry.pack(pady=10)
 
 root.mainloop()
-
-        messagebox.showerror("Error", "Please enter a valid number")
-
-
-# Main Window
 root = tk.Tk()
 root.title("Password Generator")
 root.geometry("400x250")
