@@ -47,8 +47,8 @@ for button in buttons:
     tk.Button(
         root,
         text=button,
-        width=6,
-        height=3,
+        width=5,
+        height=2,
         font=("Arial", 14),
         command=cmd
     ).grid(row=row, column=col, padx=5, pady=5)
